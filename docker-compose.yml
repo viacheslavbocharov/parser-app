@@ -18,7 +18,6 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # удобно, но не обязательно
   mongo-express:
     image: mongo-express:1
     container_name: mongo-express
