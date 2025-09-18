@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: ["**"]
+    branches: ['**']
 
 jobs:
   build-and-check:
@@ -23,6 +23,8 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Biome CI
+      - name: Lint (Biome)
         run: npm run ci:biome
- 
+
+      - name: Build
+        run: npm run build

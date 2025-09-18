@@ -1,6 +1,4 @@
 "use strict";
-// import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-// import { schema } from "../schemas/getFeedData.schema";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFeedDataRoutes = getFeedDataRoutes;
 const getFeedData_schema_1 = require("../schemas/getFeedData.schema");
