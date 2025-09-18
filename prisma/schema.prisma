@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model FeedCache {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  url          String   @unique
+  title        String?
+  itemsCount   Int      @default(0)
+  fetchedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model FeedItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  guid      String?
+  title     String?
+  link      String?
+  isoDate   DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([url])
+  @@index([url, guid])
+}
+
