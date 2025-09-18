@@ -11,6 +11,6 @@ declare module "async-retry" {
 
   export default function retry<T>(
     fn: (bail: Bail, attempt: number) => Promise<T>,
-    opts?: Options
+    opts?: Options,
   ): Promise<T>;
 }

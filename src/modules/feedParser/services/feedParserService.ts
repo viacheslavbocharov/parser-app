@@ -1,7 +1,8 @@
 /// <reference path="../../../types/async-retry.d.ts" />
-import Parser from 'rss-parser';
-import retry, { type Bail } from 'async-retry';
-import { hasStatusCode } from '../utils/typeGuards';
+
+import retry, { type Bail } from "async-retry";
+import Parser from "rss-parser";
+import { hasStatusCode } from "../utils/typeGuards";
 
 type FeedItem = {
   guid?: string;
@@ -18,23 +19,19 @@ export async function parseFeed(url: string) {
       try {
         const feed = await parser.parseURL(url);
         const items = (feed.items ?? []).map((i) => ({
-          guid: i.guid ?? i.link ?? '',
-          title: i.title ?? '',
-          link: i.link ?? '',
+          guid: i.guid ?? i.link ?? "",
+          title: i.title ?? "",
+          link: i.link ?? "",
           isoDate: i.isoDate ? new Date(i.isoDate) : undefined,
         }));
-        return { title: feed.title ?? '', items };
+        return { title: feed.title ?? "", items };
       } catch (err: unknown) {
-        if (
-          hasStatusCode(err) &&
-          err.statusCode >= 400 &&
-          err.statusCode < 500
-        ) {
-          bail(err instanceof Error ? err : new Error('Client error'));
+        if (hasStatusCode(err) && err.statusCode >= 400 && err.statusCode < 500) {
+          bail(err instanceof Error ? err : new Error("Client error"));
         }
-        throw err instanceof Error ? err : new Error('Unknown error');
+        throw err instanceof Error ? err : new Error("Unknown error");
       }
     },
-    { retries: 3, factor: 2 }
+    { retries: 3, factor: 2 },
   );
 }

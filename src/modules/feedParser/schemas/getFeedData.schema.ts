@@ -6,8 +6,8 @@ export const schema = {
     type: "object",
     properties: {
       url: { type: "string", format: "uri", nullable: true },
-      force: { type: "string", enum: ["0", "1"], default: "0" }
-    }
+      force: { type: "string", enum: ["0", "1"], default: "0" },
+    },
   },
   response: {
     200: {
@@ -26,13 +26,13 @@ export const schema = {
               guid: { type: "string" },
               title: { type: "string" },
               link: { type: "string" },
-              isoDate: { type: ["string", "null"], format: "date-time" }
+              isoDate: { type: ["string", "null"], format: "date-time" },
             },
-            required: ["guid", "title", "link"]
-          }
-        }
+            required: ["guid", "title", "link"],
+          },
+        },
       },
-      required: ["sourceUrl", "title", "itemsCount", "items"]
-    }
-  }
+      required: ["sourceUrl", "title", "itemsCount", "items"],
+    },
+  },
 } as const;
