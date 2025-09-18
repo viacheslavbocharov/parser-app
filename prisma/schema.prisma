@@ -17,8 +17,6 @@ model FeedCache {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   url          String   @unique
   title        String?
-  etag         String?
-  lastModified String?
   itemsCount   Int      @default(0)
   fetchedAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -26,8 +24,8 @@ model FeedCache {
 
 model FeedItem {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  url       String   // связь по URL фида
-  guid      String?  // если есть уникальный guid
+  url       String
+  guid      String?
   title     String?
   link      String?
   isoDate   DateTime?
@@ -36,3 +34,4 @@ model FeedItem {
   @@index([url])
   @@index([url, guid])
 }
+

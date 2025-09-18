@@ -2,9 +2,9 @@ import { join } from "node:path";
 import AutoLoad from "@fastify/autoload";
 import Fastify, { type FastifyServerOptions } from "fastify";
 import configPlugin from "./config";
-import { getFeedDataRoutes } from "./modules/feedParser/routes/feedParser.route";
-import healthDbRoutes from "./routes/health.db.route";
-import healthServerRoutes from "./routes/health.server.route";
+// import { getFeedDataRoutes } from './modules/feedParser/routes/feedParser.route';
+// import healthDbRoutes from './routes/health.db.route';
+// import healthServerRoutes from './routes/health.server.route';
 
 export type AppOptions = Partial<FastifyServerOptions>;
 
@@ -39,8 +39,14 @@ async function buildApp(options: AppOptions = {}) {
       options: options,
       ignorePattern: /^((?!plugin).)*$/,
     });
-
     fastify.log.info("✅ Plugins loaded successfully");
+
+    fastify.log.info("Starting to load routes");
+    await fastify.register(AutoLoad, {
+      dir: join(__dirname, "routes"),
+      options,
+    });
+    fastify.log.info("✅ Routes loaded successfully");
   } catch (error) {
     fastify.log.error("Error in autoload:", error);
     throw error;
@@ -50,9 +56,9 @@ async function buildApp(options: AppOptions = {}) {
     return { hello: "world" };
   });
 
-  fastify.register(getFeedDataRoutes);
-  await fastify.register(healthServerRoutes);
-  await fastify.register(healthDbRoutes);
+  // fastify.register(getFeedDataRoutes);
+  // await fastify.register(healthServerRoutes);
+  // await fastify.register(healthDbRoutes);
 
   return fastify;
 }
