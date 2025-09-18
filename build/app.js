@@ -31,10 +31,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //     })
 //     return fastify
 // }
-// export default buildApp
-const fastify_1 = __importDefault(require("fastify"));
 const node_path_1 = require("node:path");
 const autoload_1 = __importDefault(require("@fastify/autoload"));
+// export default buildApp
+const fastify_1 = __importDefault(require("fastify"));
 const config_1 = __importDefault(require("./config"));
 const feedParser_route_1 = require("./modules/feedParser/routes/feedParser.route");
 async function buildApp(options = {}) {
@@ -56,7 +56,7 @@ async function buildApp(options = {}) {
         fastify.log.error("Error in autoload:", error);
         throw error;
     }
-    fastify.get("/", async (request, reply) => {
+    fastify.get("/", async (_request, _reply) => {
         return { hello: "world" };
     });
     fastify.register(feedParser_route_1.getFeedDataRoutes);
