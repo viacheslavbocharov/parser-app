@@ -1,67 +1,8 @@
 /// <reference path="../../../types/async-retry.d.ts" />
 
-// import retry, { type Bail } from "async-retry";
-// import Parser from "rss-parser";
-// import { hasStatusCode } from "../utils/typeGuards";
-
-// type FeedItem = {
-//   guid?: string;
-//   link?: string;
-//   title?: string;
-//   isoDate?: string;
-// };
-
-// const parser = new Parser<unknown, FeedItem>();
-
-// export async function parseFeed(url: string) {
-//   return retry(
-//     async (bail: Bail) => {
-//       try {
-//         const feed = await parser.parseURL(url);
-//         const items = (feed.items ?? []).map((i) => ({
-//           guid: i.guid ?? i.link ?? "",
-//           title: i.title ?? "",
-//           link: i.link ?? "",
-//           isoDate: i.isoDate ? new Date(i.isoDate) : undefined,
-//         }));
-//         return { title: feed.title ?? "", items };
-//       } catch (err: unknown) {
-//         if (hasStatusCode(err) && err.statusCode >= 400 && err.statusCode < 500) {
-//           bail(err instanceof Error ? err : new Error("Client error"));
-//         }
-//         throw err instanceof Error ? err : new Error("Unknown error");
-//       }
-//     },
-//     { retries: 3, factor: 2 },
-//   );
-// }
-
-import retry, { type Bail } from "async-retry";
 import Parser from "rss-parser";
+import retry, { type Bail } from "async-retry";
 import { hasStatusCode } from "../utils/typeGuards";
-
-// ⬇️ новый класс — чтобы в роуте легко различать 4xx
-export class Upstream4xxError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number,
-  ) {
-    super(message);
-    this.name = "Upstream4xxError";
-  }
-}
-
-function extract4xx(err: unknown): number | null {
-  if (hasStatusCode(err) && err.statusCode >= 400 && err.statusCode < 500) {
-    return err.statusCode;
-  }
-  if (err instanceof Error && err.message) {
-    // ловим "Status code 404" или просто "... 404 ..."
-    const m = err.message.match(/\b(4\d{2})\b/);
-    if (m) return Number(m[1]);
-  }
-  return null;
-}
 
 type FeedItem = {
   guid?: string;
@@ -71,6 +12,38 @@ type FeedItem = {
 };
 
 const parser = new Parser<unknown, FeedItem>();
+
+export type Upstream4xx = Error & {
+  kind: "Upstream4xx";
+  statusCode: number;
+};
+
+export function makeUpstream4xx(message: string, statusCode: number): Upstream4xx {
+  const base = new Error(message);
+  base.name = "Upstream4xx";
+  const enriched = Object.assign(base, {
+    kind: "Upstream4xx" as const,
+    statusCode,
+  });
+  return enriched as Upstream4xx;
+}
+
+export function isUpstream4xx(e: unknown): e is Upstream4xx {
+  if (!(e instanceof Error)) return false;
+  const maybe = e as { kind?: unknown; statusCode?: unknown };
+  return maybe.kind === "Upstream4xx" && typeof maybe.statusCode === "number";
+}
+
+function extract4xx(err: unknown): number | null {
+  if (hasStatusCode(err) && err.statusCode >= 400 && err.statusCode < 500) {
+    return err.statusCode;
+  }
+  if (err instanceof Error && err.message) {
+    const m = err.message.match(/\b(4\d{2})\b/);
+    if (m) return Number(m[1]);
+  }
+  return null;
+}
 
 export async function parseFeed(url: string) {
   return retry(
@@ -87,13 +60,11 @@ export async function parseFeed(url: string) {
       } catch (err: unknown) {
         const s = extract4xx(err);
         if (s) {
-          // ⬇️ bail: не ретраим 4xx
-          bail(new Upstream4xxError(`Upstream ${s}`, s));
+          bail(makeUpstream4xx(`Upstream ${s}`, s));
         }
-        // остальное — пусть ретраится/падает как раньше
         throw err instanceof Error ? err : new Error("Unknown error");
       }
     },
-    { retries: 3, factor: 2 /*, onRetry: (e,a)=>console.warn('retry',a,e)*/ },
+    { retries: 3, factor: 2 },
   );
 }
