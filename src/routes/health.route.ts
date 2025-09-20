@@ -13,7 +13,7 @@ export default async function (app: FastifyInstance) {
       return { status: "ok" };
     } catch (err) {
       app.log.warn({ err }, "DB health failed");
-      return reply.status(503).send({ status: "fail" });
+      return reply.serviceUnavailable("DB health failed");
     }
   });
 }

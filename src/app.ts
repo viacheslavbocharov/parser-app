@@ -41,17 +41,17 @@ async function buildApp(options: AppOptions = {}) {
     fastify.log.info("Starting to load plugins");
     await fastify.register(AutoLoad, {
       dir: join(__dirname, "routes"),
-      options: options,
+      options,
       ignorePattern: /(^|[\\/])(?![^\\/]*\.route\.)[^\\/]+\.[^\\/]+$/,
     });
 
     fastify.log.info("Starting to load routes");
     await fastify.register(AutoLoad, {
       dir: join(__dirname, "modules"),
-      maxDepth: 8,
       options,
       ignorePattern: /(^|[\\/])(?![^\\/]*\.route\.)[^\\/]+\.[^\\/]+$/,
     });
+
     fastify.log.info("✅ Routes loaded successfully");
   } catch (error) {
     fastify.log.error("Error in autoload:", error);

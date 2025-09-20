@@ -14,7 +14,9 @@ export default fp(
       app.log.error({ err }, "❌ Prisma connect failed");
       try {
         await prisma.$disconnect();
-      } catch {}
+      } catch (e: unknown) {
+        app.log.warn({ err: e }, "⚠️ Prisma disconnect during cleanup failed");
+      }
 
       const msg = err instanceof Error ? err.message : "Database connection failed";
       throw new Error(msg);

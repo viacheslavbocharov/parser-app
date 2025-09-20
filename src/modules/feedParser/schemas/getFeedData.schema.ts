@@ -1,14 +1,19 @@
+import type { FromSchema } from "json-schema-to-ts";
+
 export const schema = {
   tags: ["feed"],
   summary: "Get feed data",
   description: "Parse RSS feed (optionally force refresh)",
+
   querystring: {
     type: "object",
     properties: {
-      url: { type: "string", format: "uri", nullable: true },
+      url: { type: "string", format: "uri" },
       force: { type: "string", enum: ["0", "1"], default: "0" },
     },
+    additionalProperties: false,
   },
+
   response: {
     200: {
       type: "object",
@@ -16,7 +21,7 @@ export const schema = {
       properties: {
         sourceUrl: { type: "string" },
         title: { type: "string" },
-        itemsCount: { type: "number" },
+        itemsCount: { type: "integer" },
         items: {
           type: "array",
           items: {
@@ -26,7 +31,9 @@ export const schema = {
               guid: { type: "string" },
               title: { type: "string" },
               link: { type: "string" },
-              isoDate: { type: ["string", "null"], format: "date-time" },
+              isoDate: {
+                anyOf: [{ type: "string", format: "date-time" }, { type: "null" }],
+              },
             },
             required: ["guid", "title", "link"],
           },
@@ -36,3 +43,5 @@ export const schema = {
     },
   },
 } as const;
+
+export type FeedResponse = FromSchema<(typeof schema.response)[200]>;
