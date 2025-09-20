@@ -6,9 +6,11 @@ export default fp(async (app) => {
     const code = (err as { code?: string }).code ?? "INTERNAL";
 
     const statusCode =
-      code === "ENOTFOUND" || code === "ECONNREFUSED" || code === "ECONNRESET" ? 502 :
-      code === "ETIMEDOUT" || code === "UND_ERR_ABORTED" ? 504 :
-      /* isUpstream4xx(err) ? 400 : */ 500;
+      code === "ENOTFOUND" || code === "ECONNREFUSED" || code === "ECONNRESET"
+        ? 502
+        : code === "ETIMEDOUT" || code === "UND_ERR_ABORTED"
+          ? 504
+          : /* isUpstream4xx(err) ? 400 : */ 500;
 
     reply.status(statusCode).send({
       statusCode,
@@ -17,4 +19,3 @@ export default fp(async (app) => {
     });
   });
 });
-

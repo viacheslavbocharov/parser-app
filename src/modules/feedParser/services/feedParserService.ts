@@ -1,7 +1,7 @@
 /// <reference path="../../../types/async-retry.d.ts" />
 
-import Parser from "rss-parser";
 import retry, { type Bail } from "async-retry";
+import Parser from "rss-parser";
 import { hasStatusCode } from "../utils/typeGuards";
 
 type FeedItem = {
