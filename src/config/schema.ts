@@ -3,11 +3,16 @@ import type { FromSchema } from "json-schema-to-ts";
 export const EnvSchema = {
   type: "object",
   properties: {
+    NODE_ENV: {
+      type: "string",
+      enum: ["development", "test", "production"],
+      default: "development",
+    },
     PORT: { type: "number" },
     HOST: { type: "string" },
-    DEFAULT_FEED_URL: { type: "string", nullable: true },
+    DEFAULT_FEED_URL: { type: "string", format: "uri", minLength: 1 },
   },
-  required: ["PORT", "HOST"],
+  required: ["PORT", "HOST", "DEFAULT_FEED_URL"],
   additionalProperties: false,
 } as const;
 
