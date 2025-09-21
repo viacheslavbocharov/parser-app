@@ -8,7 +8,9 @@ import { HttpError } from "../../auth/services/errors";
 export default fp(async function routes(app: FastifyInstance) {
   const r = app.withTypeProvider<JsonSchemaToTsProvider>();
 
-  r.get("/article", { schema: getArticleSchema }, async (req, reply) => {
+  r.get("/article", 
+   { schema: { ...getArticleSchema, security: [{ bearerAuth: [] }] }, preHandler: [app.auth] }, 
+    async (req, reply) => {
     try {
       const { url } = req.query as GetArticleQuery;
       const dto = await getArticleResponse(url);
