@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
+type MongoPing = { ok?: number };
+
 export default async function (app: FastifyInstance) {
   app.get("/health/server", async () => ({
     status: "ok",
@@ -9,8 +11,9 @@ export default async function (app: FastifyInstance) {
 
   app.get("/health/db", async (_req, reply) => {
     try {
-      await app.prisma.feedCache.findFirst({ select: { url: true } });
-      return { status: "ok" };
+      const res = (await app.prisma.$runCommandRaw({ ping: 1 })) as unknown as MongoPing;
+      if (res.ok === 1) return { status: "ok" };
+      return reply.serviceUnavailable("DB ping failed");
     } catch (err) {
       app.log.warn({ err }, "DB health failed");
       return reply.serviceUnavailable("DB health failed");

@@ -1,17 +1,17 @@
-import type { FastifyInstance } from "fastify";
+import type { PrismaClient } from "@prisma/client";
 import { getFeedCacheByUrl, getLatestItems } from "../../../services/dbService";
 import type { FeedResponse } from "../schemas/getFeedData.schema";
 import { parseFeed } from "./feedParserService";
 
 export async function getFeedResponse(
-  app: FastifyInstance,
+  prisma: PrismaClient,
   url: string,
   force: boolean,
 ): Promise<FeedResponse> {
   if (!force) {
-    const cache = await getFeedCacheByUrl(app.prisma, url);
+    const cache = await getFeedCacheByUrl(prisma, url);
     if (cache) {
-      const cachedItems = await getLatestItems(app.prisma, url, 50);
+      const cachedItems = await getLatestItems(prisma, url, 50);
       return {
         sourceUrl: url,
         title: cache.title ?? "",
@@ -27,7 +27,6 @@ export async function getFeedResponse(
   }
 
   const { title, items } = await parseFeed(url);
-
   const responseItems = items.map((i) => ({
     guid: i.guid,
     title: i.title,
