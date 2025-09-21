@@ -2,12 +2,27 @@ import { join } from "node:path";
 import AutoLoad from "@fastify/autoload";
 import Fastify, { type FastifyServerOptions } from "fastify";
 import configPlugin from "./config";
-import { getFeedDataRoutes } from "./modules/feedParser/routes/feedParser.route";
 
 export type AppOptions = Partial<FastifyServerOptions>;
 
 async function buildApp(options: AppOptions = {}) {
-  const fastify = Fastify({ logger: true });
+  const isDev = process.env.NODE_ENV !== "production";
+
+  const fastify = Fastify({
+    logger: isDev
+      ? {
+          transport: {
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+              translateTime: "yyyy-mm-dd HH:MM:ss",
+              ignore: "pid,hostname",
+            },
+          },
+        }
+      : true,
+  });
+
   await fastify.register(configPlugin);
 
   try {
@@ -21,8 +36,23 @@ async function buildApp(options: AppOptions = {}) {
       options: options,
       ignorePattern: /^((?!plugin).)*$/,
     });
-
     fastify.log.info("✅ Plugins loaded successfully");
+
+    fastify.log.info("Starting to load plugins");
+    await fastify.register(AutoLoad, {
+      dir: join(__dirname, "routes"),
+      options,
+      ignorePattern: /(^|[\\/])(?![^\\/]*\.route\.)[^\\/]+\.[^\\/]+$/,
+    });
+
+    fastify.log.info("Starting to load routes");
+    await fastify.register(AutoLoad, {
+      dir: join(__dirname, "modules"),
+      options,
+      ignorePattern: /(^|[\\/])(?![^\\/]*\.route\.)[^\\/]+\.[^\\/]+$/,
+    });
+
+    fastify.log.info("✅ Routes loaded successfully");
   } catch (error) {
     fastify.log.error("Error in autoload:", error);
     throw error;
@@ -31,8 +61,6 @@ async function buildApp(options: AppOptions = {}) {
   fastify.get("/", async (_request, _reply) => {
     return { hello: "world" };
   });
-
-  fastify.register(getFeedDataRoutes);
 
   return fastify;
 }

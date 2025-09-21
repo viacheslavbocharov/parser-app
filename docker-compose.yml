@@ -1,0 +1,72 @@
+# services:
+#   mongo:
+#     image: mongo:7
+#     container_name: mongo
+#     ports:
+#       - "27017:27017"          
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+#       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+#     volumes:
+#       - mongo_data:/data/db
+#     command: ["--replSet", "rs0", "--bind_ip_all"]    
+#     healthcheck:
+#       test: >
+#         bash -lc 'mongosh --quiet -u "$${MONGO_INITDB_ROOT_USERNAME}"
+#         -p "$${MONGO_INITDB_ROOT_PASSWORD}" --eval "db.adminCommand({ ping: 1 })"'
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#     restart: unless-stopped
+
+#   mongo-express:
+#     image: mongo-express:1
+#     container_name: mongo-express
+#     depends_on:
+#       mongo:
+#         condition: service_healthy
+#     ports:
+#       - "8081:8081"
+#     environment:
+#       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+#       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+#       ME_CONFIG_BASICAUTH: "false"
+#       ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/
+#     restart: unless-stopped
+
+# volumes:
+#   mongo_data:
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./docker/mongo-init:/docker-entrypoint-initdb.d:ro
+    # только реплика-сет, без keyFile и без auth
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: mongo-express
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH: "false"
+      # без авторизации, прямое подключение к ноде
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/?directConnection=true
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
