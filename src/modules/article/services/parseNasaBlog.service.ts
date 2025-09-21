@@ -2,7 +2,11 @@ import * as cheerio from "cheerio";
 
 function absolutize(src: string | undefined, base: string) {
   if (!src) return null;
-  try { return new URL(src, base).toString(); } catch { return src; }
+  try {
+    return new URL(src, base).toString();
+  } catch {
+    return src;
+  }
 }
 
 export function parseNasaBlog(html: string, pageUrl: string) {
@@ -28,8 +32,8 @@ export function parseNasaBlog(html: string, pageUrl: string) {
 
   const heroImage = absolutize(
     $('meta[property="og:image"]').attr("content") ||
-    $("figure img").first().attr("src") ||
-    $("img").first().attr("src"),
+      $("figure img").first().attr("src") ||
+      $("img").first().attr("src"),
     pageUrl,
   );
 
@@ -51,7 +55,8 @@ export function parseNasaBlog(html: string, pageUrl: string) {
     const root = $(sel).first();
     if (!root.length) continue;
 
-    const ps = root.find("p")
+    const ps = root
+      .find("p")
       .map((_i, el) => $(el).text().trim())
       .toArray()
       .filter(Boolean);
@@ -68,7 +73,10 @@ export function parseNasaBlog(html: string, pageUrl: string) {
   }
 
   if (paragraphs.length === 0) {
-    paragraphs = $("p").map((_i, el) => $(el).text().trim()).toArray().filter(Boolean);
+    paragraphs = $("p")
+      .map((_i, el) => $(el).text().trim())
+      .toArray()
+      .filter(Boolean);
   }
 
   return {

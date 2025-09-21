@@ -1,15 +1,18 @@
-import fp from "fastify-plugin";
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
+import fp from "fastify-plugin";
 
 export default fp(async (app) => {
   app.setErrorHandler((err: FastifyError, _req: FastifyRequest, reply: FastifyReply) => {
     const isDev = app.config.NODE_ENV === "development";
 
-    let statusCode: number =
-      typeof err.statusCode === "number" ? err.statusCode : Number.NaN;
+    let statusCode: number = typeof err.statusCode === "number" ? err.statusCode : Number.NaN;
     let code: string | undefined = err.code;
 
-    if (!Number.isFinite(statusCode) && typeof err.code === "string" && err.code.startsWith("FST_JWT_")) {
+    if (
+      !Number.isFinite(statusCode) &&
+      typeof err.code === "string" &&
+      err.code.startsWith("FST_JWT_")
+    ) {
       statusCode = 401;
     }
 

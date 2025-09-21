@@ -24,4 +24,3 @@ export default fp(
   },
   { name: "swagger-plugin" },
 );
-

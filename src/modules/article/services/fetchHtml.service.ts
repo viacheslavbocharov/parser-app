@@ -15,7 +15,7 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}) {
       signal: controller.signal,
       headers: {
         "User-Agent": "ParserApp/1.0 (+https://example.local)",
-        "Accept": "text/html,application/xhtml+xml",
+        Accept: "text/html,application/xhtml+xml",
         ...opts.headers,
       },
     });
