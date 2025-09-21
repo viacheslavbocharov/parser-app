@@ -4,7 +4,6 @@ import fp from "fastify-plugin";
 import { loginSchema } from "../schemas/login.schema";
 import { meSchema } from "../schemas/me.schema";
 import { registerSchema } from "../schemas/register.schema";
-import { HttpError } from "../services/errors";
 import { verifyCredentials } from "../services/login.service";
 import { getMe } from "../services/me.service";
 import { registerUser } from "../services/register.service";
@@ -12,23 +11,6 @@ import { registerUser } from "../services/register.service";
 export default fp(async function routes(app: FastifyInstance) {
   const r = app.withTypeProvider<JsonSchemaToTsProvider>();
 
-  // r.post("/auth/register", { schema: registerSchema }, async (req, reply) => {
-  //   try {
-  //     const { name, email, password } = req.body as {
-  //       name: string;
-  //       email: string;
-  //       password: string;
-  //     };
-  //     const dto = await registerUser(app.prisma, { name, email, password });
-  //     return reply.code(201).send(dto);
-  //   } catch (err) {
-  //     req.log.error({ err, body: req.body }, "register route failed");
-  //     if (err instanceof HttpError) {
-  //       if (err.statusCode === 409) return reply.conflict(err.message);
-  //     }
-  //     return reply.internalServerError("Internal error");
-  //   }
-  // });
   r.post("/auth/register", { schema: registerSchema }, async (req, reply) => {
   try {
     const { name, email, password } = req.body as {
