@@ -3,6 +3,7 @@ export const allowedHosts = new Set<string>([
   "theregister.com",
   "science.nasa.gov",
   "www.science.nasa.gov",
+  "www.nasa.gov",
 ]);
 
 export function isAllowedHost(host: string) {

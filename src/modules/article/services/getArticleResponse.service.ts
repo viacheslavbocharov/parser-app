@@ -2,6 +2,7 @@ import { HttpError } from "../../auth/services/errors";
 import { isAllowedHost } from "./allowlist";
 import { fetchHtml } from "./fetchHtml.service";
 import { parseNasaBlog } from "./parseNasaBlog.service";
+import { parseNasaGov } from "./parseNasaGov.service";
 import { parseTheRegister } from "./parseTheRegister.service";
 
 export async function getArticleResponse(url: string) {
@@ -16,13 +17,20 @@ export async function getArticleResponse(url: string) {
 
   const html = await fetchHtml(url);
 
-  const parsed = host.endsWith("theregister.com")
-    ? parseTheRegister(html, url)
-    : host.endsWith("science.nasa.gov")
-      ? parseNasaBlog(html, url)
-      : (() => {
-          throw new HttpError(400, "BAD_REQUEST", "Unsupported host");
-        })();
+  let parsed:
+    | ReturnType<typeof parseTheRegister>
+    | ReturnType<typeof parseNasaBlog>
+    | ReturnType<typeof parseNasaGov>;
+
+  if (host.endsWith("theregister.com")) {
+    parsed = parseTheRegister(html, url);
+  } else if (host.endsWith("science.nasa.gov")) {
+    parsed = parseNasaBlog(html, url);
+  } else if (host.endsWith("nasa.gov")) {
+    parsed = parseNasaGov(html, url);
+  } else {
+    throw new HttpError(400, "BAD_REQUEST", "Unsupported host");
+  }
 
   const cleanedParagraphs = (parsed.paragraphs ?? [])
     .filter(Boolean)

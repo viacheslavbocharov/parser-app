@@ -11,30 +11,6 @@ import { registerUser } from "../services/register.service";
 export default fp(async function routes(app: FastifyInstance) {
   const r = app.withTypeProvider<JsonSchemaToTsProvider>();
 
-  // r.post("/auth/register", { schema: registerSchema }, async (req, reply) => {
-  //   try {
-  //     const { name, email, password } = req.body as {
-  //       name: string;
-  //       email: string;
-  //       password: string;
-  //     };
-
-  //     const dto = await registerUser(app.prisma, { name, email, password });
-  //     return reply.code(201).send(dto);
-  //   } catch (err) {
-  //     const e = err as { statusCode?: number; code?: string; message?: string; name?: string };
-  //     req.log.error({ err, body: req.body }, "register route failed");
-
-  //     if (e?.statusCode === 409 || e?.code === "CONFLICT" || e?.name === "HttpError") {
-  //       return reply
-  //         .status(409)
-  //         .send({ message: e?.message ?? "Email already registered", code: "CONFLICT" });
-  //     }
-
-  //     return reply.internalServerError("Internal error");
-  //   }
-  // });
-
   r.post("/auth/register", { schema: registerSchema }, async (req, reply) => {
     try {
       const { name, email, password } = req.body as {
@@ -73,27 +49,6 @@ export default fp(async function routes(app: FastifyInstance) {
     }
   });
 
-  // r.post("/auth/login", { schema: loginSchema }, async (req, reply) => {
-  //   try {
-  //     const { email, password } = req.body as {
-  //       email: string;
-  //       password: string;
-  //     };
-  //     const payload = await verifyCredentials(app.prisma, { email, password });
-  //     const accessToken = await reply.jwtSign(payload);
-  //     return reply.send({ accessToken });
-  //   } catch (err) {
-  //     const e = err as { statusCode?: number; code?: string; message?: string; name?: string };
-  //     req.log.error({ err, body: req.body }, "login route failed");
-
-  //     if (e?.statusCode === 401 || e?.code === "UNAUTHORIZED" || e?.name === "HttpError") {
-  //       return reply
-  //         .status(401)
-  //         .send({ message: e?.message ?? "Invalid credentials", code: "UNAUTHORIZED" });
-  //     }
-  //     return reply.internalServerError("Internal error");
-  //   }
-  // });
   r.post("/auth/login", { schema: loginSchema }, async (req, reply) => {
     try {
       const { email, password } = req.body as { email: string; password: string };

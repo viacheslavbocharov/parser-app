@@ -3,6 +3,8 @@ import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { HttpError } from "../../auth/services/errors";
 import { type GetArticleQuery, getArticleSchema } from "../schemas/getArticle.schema";
+import { previewSchema } from "../schemas/preview.schema";
+import { getArticlePreviewResponse } from "../services/getArticlePreviewResponse.service";
 import { getArticleResponse } from "../services/getArticleResponse.service";
 
 export default fp(async function routes(app: FastifyInstance) {
@@ -30,6 +32,22 @@ export default fp(async function routes(app: FastifyInstance) {
       }
     },
   );
+
+  r.get("/article/preview", { schema: previewSchema }, async (req, reply) => {
+    try {
+      const { url } = req.query as { url: string };
+      const data = await getArticlePreviewResponse(url);
+      return reply.send(data);
+    } catch (err) {
+      req.log.error({ err, query: req.query }, "article preview failed");
+      const e = err as { statusCode?: number; message?: string; code?: string };
+
+      if (e?.statusCode === 400 || e?.code === "BAD_REQUEST") {
+        return reply.badRequest(e?.message ?? "Bad request");
+      }
+      return reply.internalServerError("Internal error");
+    }
+  });
 
   app.pluginLoaded("article-routes");
 });
