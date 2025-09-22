@@ -7,8 +7,18 @@ export default fp(
     await fastify.register(swagger, {
       openapi: {
         info: { title: "Parser API", version: "1.0.0" },
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
       },
     });
+
     await fastify.register(swaggerUI, { routePrefix: "/docs" });
     fastify.pluginLoaded("swagger-plugin");
   },

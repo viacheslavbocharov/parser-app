@@ -11,6 +11,8 @@ export const EnvSchema = {
     PORT: { type: "number" },
     HOST: { type: "string" },
     DEFAULT_FEED_URL: { type: "string", format: "uri", minLength: 1 },
+    JWT_SECRET: { type: "string", minLength: 1, default: "dev-secret" },
+    JWT_EXPIRES_IN: { type: "string", minLength: 1, default: "7d" },
   },
   required: ["PORT", "HOST", "DEFAULT_FEED_URL"],
   additionalProperties: false,
