@@ -3,8 +3,8 @@ import fp from "fastify-plugin";
 
 export default fp(async (app) => {
   await app.register(cors, {
-    origin: true,      
-    credentials: true, 
+    origin: true,
+    credentials: true,
   });
   app.pluginLoaded("cors-plugin");
 });

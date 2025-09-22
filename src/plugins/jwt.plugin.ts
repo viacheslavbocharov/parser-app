@@ -19,8 +19,8 @@
 //   app.pluginLoaded("jwt-plugin");
 // });
 
-import fp from "fastify-plugin";
 import fastifyJwt from "@fastify/jwt";
+import fp from "fastify-plugin";
 
 export default fp(async (app) => {
   await app.register(fastifyJwt, {
