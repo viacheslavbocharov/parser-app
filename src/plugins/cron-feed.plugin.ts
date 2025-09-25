@@ -1,9 +1,9 @@
-import fp from "fastify-plugin";
-import fastifyCron from "fastify-cron";
 import type { FastifyInstance } from "fastify";
-import { parseFeed } from "../modules/feedParser/services/feedParserService";
-import { upsertFeedCache, bulkUpsertFeedItems } from "../services/dbService";
+import fastifyCron from "fastify-cron";
+import fp from "fastify-plugin";
 import type { Config } from "../config/schema";
+import { parseFeed } from "../modules/feedParser/services/feedParserService";
+import { bulkUpsertFeedItems, upsertFeedCache } from "../services/dbService";
 
 export default fp(async function cronFeedPlugin(app: FastifyInstance) {
   const config = app.config as Config;
@@ -17,10 +17,12 @@ export default fp(async function cronFeedPlugin(app: FastifyInstance) {
 
   const urls =
     config.FEED_URLS && config.FEED_URLS.trim().length > 0
-      ? config.FEED_URLS.split(",").map((s) => s.trim()).filter(Boolean)
+      ? config.FEED_URLS.split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
       : config.DEFAULT_FEED_URL
-      ? [config.DEFAULT_FEED_URL]
-      : [];
+        ? [config.DEFAULT_FEED_URL]
+        : [];
 
   if (urls.length === 0) {
     app.log.warn("cron-feed: no feed URLs found (FEED_URLS/DEFAULT_FEED_URL). Skipping.");
@@ -66,7 +68,7 @@ export default fp(async function cronFeedPlugin(app: FastifyInstance) {
           }
         },
         startWhenReady: true,
-        runOnInit: true,   // один раз при старте
+        runOnInit: true, // один раз при старте
         timeZone: "UTC",
       },
     ],
