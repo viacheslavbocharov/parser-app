@@ -13,6 +13,9 @@ export const EnvSchema = {
     DEFAULT_FEED_URL: { type: "string", format: "uri", minLength: 1 },
     JWT_SECRET: { type: "string", minLength: 1, default: "dev-secret" },
     JWT_EXPIRES_IN: { type: "string", minLength: 1, default: "7d" },
+    FEED_CRON: { type: "string", default: "*/10 * * * *" },
+    FEED_URLS: { type: "string"},
+    CRON_ENABLED: { type: "string", enum: ["0", "1"], default: "1" }, // 0 — отключить крон
   },
   required: ["PORT", "HOST", "DEFAULT_FEED_URL"],
   additionalProperties: false,
