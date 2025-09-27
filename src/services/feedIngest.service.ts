@@ -9,7 +9,10 @@ type MappedItem = {
   isoDate: string | null;
 };
 
-export async function ingestFeeds(fastify: FastifyInstance, urls: readonly string[]): Promise<void> {
+export async function ingestFeeds(
+  fastify: FastifyInstance,
+  urls: readonly string[],
+): Promise<void> {
   for (const url of urls) {
     try {
       const { title, items } = await parseFeed(url);
